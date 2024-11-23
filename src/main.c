@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 
 char *command = NULL;
-FILE *archive = NULL;
+FILE *batch_file = NULL;
 void display_prompt() {
     char cwd[PATH_MAX];
     char *user = getenv("USER");
@@ -67,9 +67,9 @@ void quit_command(){
         command = NULL;
         printf("Memoria dinámica liberada.\n");
     }
-    if (archive != NULL) {
-        fclose(archive);
-        archive = NULL;
+    if (batch_file != NULL) {
+        fclose(batch_file);
+        batch_file = NULL;
         printf("Archivo cerrado.\n");
     }
 }
@@ -125,23 +125,37 @@ void command_select(char *input) {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     
-    size_t len = 0;
-    while (1) {
-        
-        display_prompt();  // Mostrar el prompt
+    size_t len = 0; 
 
-        ssize_t nread = getline(&command, &len, stdin);  // Leer el comando
+    if (argc > 1) { 
+        // Modo batch
+        batch_file = fopen(argv[1], "r"); 
+        if (batch_file == NULL) { 
+            perror("Error abriendo el archivo batch"); 
+            return 1; 
+        } 
 
-        if (nread == -1) {
-            break;  // Salir en caso de EOF o error
-        }
+        while (getline(&command, &len, batch_file) != -1) { 
+            command_select(command); 
+        } 
+    } else { 
+    // Modo interactivo
+        while (1) { 
+            display_prompt();  // Mostrar el prompt
+            ssize_t nread = getline(&command, &len, stdin);  // Leer el comando
 
-        command_select(command);
+            if (nread == -1) { 
+                break;  // Salir en caso de EOF o error 
+            } 
+
+            command_select(command); 
+        } 
     }
 
-    free(command);  // Liberar la memoria asignada para 'command'
+    quit_command();
+    
     return 0;
 }
 
