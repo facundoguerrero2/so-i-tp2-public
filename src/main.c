@@ -9,6 +9,7 @@
 
 char *command = NULL;
 FILE *batch_file = NULL;
+int job_id = 1;
 void display_prompt() {
     char cwd[PATH_MAX];
     char *user = getenv("USER");
@@ -74,7 +75,7 @@ void quit_command(){
     }
 }
 
-void execute_external_command(char *args[]) {
+void execute_external_command(char *args[], int background) {
     pid_t pid = fork();
 
     if (pid == -1) {
@@ -89,9 +90,13 @@ void execute_external_command(char *args[]) {
         }
         exit(EXIT_FAILURE); // Salir si execvp falla
     } else {
-        // Proceso padre
-        int status;
-        waitpid(pid, &status, 0); // Esperar a que el hijo termine
+        if (background) { 
+            printf("[%d] %d\n", job_id++, pid); 
+        }else { 
+            int status; 
+            waitpid(pid, &status, 0);  // Esperar a que el hijo termine si no está en segundo plano
+        }
+
     }
 }
 
@@ -101,8 +106,13 @@ void command_select(char *input) {
     char *args[128];
     char *token = strtok(input, " \n");
     int arg_count = 0;
+    int background = 0;
 
     while (token != NULL) {
+        if (strcmp(token, "&") == 0){
+            background = 1; 
+            break; 
+        }
         args[arg_count++] = token;
         token = strtok(NULL, " \n");
     }
@@ -121,14 +131,14 @@ void command_select(char *input) {
         quit_command();
         exit(0);
     } else {
-        execute_external_command(args);
+        execute_external_command(args, background);
     }
 }
 
 int main(int argc, char *argv[]) {
     
     size_t len = 0; 
-
+    
     if (argc > 1) { 
         // Modo batch
         batch_file = fopen(argv[1], "r"); 
