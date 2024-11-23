@@ -4,7 +4,8 @@
 #include <cjson/cJSON.h>
 #include <limits.h>
 #include <string.h>
-
+#include <sys/types.h>
+#include <sys/wait.h>
 
 char *command = NULL;
 FILE *archive = NULL;
@@ -73,6 +74,28 @@ void quit_command(){
     }
 }
 
+void execute_external_command(char *args[]) {
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork failed");
+        return;
+    }
+
+    if (pid == 0) {
+        // Proceso hijo
+        if (execvp(args[0], args) == -1) {
+            perror("execvp error");
+        }
+        exit(EXIT_FAILURE); // Salir si execvp falla
+    } else {
+        // Proceso padre
+        int status;
+        waitpid(pid, &status, 0); // Esperar a que el hijo termine
+    }
+}
+
+
 void command_select(char *input) {
 
     char *args[128];
@@ -98,7 +121,7 @@ void command_select(char *input) {
         quit_command();
         exit(0);
     } else {
-       // execute_command(args[0], args);
+        execute_external_command(args);
     }
 }
 
