@@ -10,6 +10,26 @@
 char *command = NULL;
 FILE *batch_file = NULL;
 int job_id = 1;
+pid_t foreground_pid = -1; // PID del proceso en primer plano
+
+void signal_handler(int sig) {
+    if (foreground_pid != -1) { 
+        kill(foreground_pid, sig); 
+    } 
+}
+
+void setup_signal_handlers() {
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGINT, &sa, NULL);  // CTRL-C
+    sigaction(SIGTSTP, &sa, NULL); // CTRL-Z
+    sigaction(SIGQUIT, &sa, NULL); // CTRL-
+}
+
+
 void display_prompt() {
     char cwd[PATH_MAX];
     char *user = getenv("USER");
@@ -93,8 +113,13 @@ void execute_external_command(char *args[], int background) {
         if (background) { 
             printf("[%d] %d\n", job_id++, pid); 
         }else { 
+            foreground_pid = pid; 
+
             int status; 
             waitpid(pid, &status, 0);  // Esperar a que el hijo termine si no está en segundo plano
+
+            foreground_pid = -1;  // Restablecer foreground_pid
+
         }
 
     }
@@ -138,7 +163,7 @@ void command_select(char *input) {
 int main(int argc, char *argv[]) {
     
     size_t len = 0; 
-    
+    setup_signal_handlers();
     if (argc > 1) { 
         // Modo batch
         batch_file = fopen(argv[1], "r"); 
