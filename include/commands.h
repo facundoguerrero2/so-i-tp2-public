@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <limits.h>
 
 /**
  * @brief Current command entered by the user.
