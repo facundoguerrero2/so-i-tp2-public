@@ -2,6 +2,8 @@
 
 char* command = NULL;
 FILE* batch_file = NULL;
+FILE* input_file = NULL;
+FILE* output_file = NULL;
 int job_id = 1;
 pid_t foreground_pid = -1;
 
@@ -79,6 +81,18 @@ void quit_command()
     {
         fclose(batch_file);
         batch_file = NULL;
+        printf("Archivo cerrado.\n");
+    }
+    if (input_file != NULL)
+    {
+        fclose(input_file);
+        input_file = NULL;
+        printf("Archivo cerrado.\n");
+    }
+    if (output_file != NULL)
+    {
+        fclose(output_file);
+        output_file = NULL;
         printf("Archivo cerrado.\n");
     }
 }
@@ -223,9 +237,46 @@ void command_select(char* input)
         if(tokens_cant == 0){
             return;
         }
+        //save original descriptors
+        int original_stdin = dup(STDIN_FILENO);
+        int original_stdout = dup(STDOUT_FILENO);
 
+        redirect(args, tokens_cant); // Llamar a redirect antes de ejecutar el comando
         if(!excecute_internal_command(args)){ //si no es interno es externo
             execute_external_command(args,tokens_cant);
         }
+        //recover original descriptors
+        dup2(original_stdin, STDIN_FILENO);
+        dup2(original_stdout, STDOUT_FILENO);
+        close(original_stdin);
+        close(original_stdout);
+
     }
 }
+
+
+
+void redirect(char* args[], int tokens_cant) {
+    for (int i = 0; i < tokens_cant; i++) {
+        if (strcmp(args[i], "<") == 0 && i + 1 < tokens_cant) {
+            int in_fd = open(args[i + 1], O_RDONLY);
+            if (in_fd == -1) {
+                perror("No se puede abrir el archivo de entrada");
+                return;
+            }
+            dup2(in_fd, STDIN_FILENO);
+            close(in_fd);
+            args[i] = NULL;
+        } else if (strcmp(args[i], ">") == 0 && i + 1 < tokens_cant) {
+            int out_fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (out_fd == -1) {
+                perror("No se puede abrir el archivo de salida");
+                return;
+            }
+            dup2(out_fd, STDOUT_FILENO);
+            close(out_fd);
+            args[i] = NULL;
+        }
+    }
+}
+

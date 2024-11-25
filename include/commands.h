@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <fcntl.h>
+
 /**
  * @brief Current command entered by the user.
  */
@@ -93,5 +95,14 @@ void execute_pipeline(char *cmds[], int n) ;
  */
 void command_select(char* input);
 
-
+/**
+ * @brief Handles input and output redirection for a command.
+ * 
+ * This function checks the arguments for input (`<`) and output (`>`) redirection
+ * operators and sets up the appropriate file descriptors for `stdin` and `stdout`.
+ * 
+ * @param args Array of command arguments.
+ * @param tokens_cant Number of tokens in the `args` array.
+ */
+void redirect(char* args[], int tokens_cant);
 
