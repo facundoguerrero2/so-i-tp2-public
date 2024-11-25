@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 /**
  * @brief sends to current foreground process a singal

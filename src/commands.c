@@ -5,6 +5,51 @@ FILE* batch_file = NULL;
 int job_id = 1;
 pid_t foreground_pid = -1;
 
+void execute_pipeline(char *cmds[], int n) {
+    int pipefd[2];//pipefd[0]: Extremo de lectura.
+                  //pipefd[1]: Extremo de escritura.
+    int prev_fd = 0; // Para guardar el extremo de lectura del pipe anterior
+
+    for (int i = 0; i < n; i++) {
+        pipe(pipefd); // Crear un nuevo pipe
+
+        pid_t pid = fork();
+
+        if (pid == -1) {
+            perror("fork failed");
+            return;
+        }
+
+        if (pid == 0) {
+            // Proceso hijo
+            dup2(prev_fd, STDIN_FILENO); // Redirigir entrada estándar
+            if (i < n - 1) {
+                dup2(pipefd[1], STDOUT_FILENO); // Redirigir salida estándar
+            }
+            close(pipefd[0]);
+            char *args[128];
+            char *token = strtok(cmds[i], " \n");
+            int arg_count = 0;
+
+            while (token != NULL) {
+                args[arg_count++] = token;
+                token = strtok(NULL, " \n");
+            }
+            args[arg_count] = NULL;
+
+            if (execvp(args[0], args) == -1) {
+                perror("execvp error");
+                exit(EXIT_FAILURE);
+            }
+        } else {
+            // Proceso padre
+            wait(NULL);
+            close(pipefd[1]);
+            prev_fd = pipefd[0];
+        }
+    }
+}
+
 void cd_command(char* path)
 {
     char cwd[PATH_MAX];
@@ -27,7 +72,7 @@ void cd_command(char* path)
     {
         // change environmental variables
         setenv("OLDPWD", getenv("PWD"), 1);
-        setenv("PWD", getcwd(cwd,sizeof(cwd)), 1);
+        setenv("PWD", getcwd(cwd, sizeof(cwd)), 1);
     }
 }
 
@@ -114,51 +159,67 @@ void execute_external_command(char* args[], int background)
 
 void command_select(char* input)
 {
-    // array of char pointers, each of positions will be strings (commands)
+    // Array para almacenar comandos separados por pipes
     char* args[128];
-    char* token = strtok(input, " \n"); // saves tokens of input (separates with spaces)
-    int arg_count = 0;
-    int background = 0;
+    char* token = strtok(input, "|");
+    int cmd_count = 0;
 
-    while (token != NULL)
-    {
-        if (strcmp(token, "&") == 0)
-        { // if in the token has & is background process
-            background = 1;
-            break;
+    // Divide el input en comandos individuales
+    while (token != NULL) {
+        args[cmd_count++] = token;
+        token = strtok(NULL, "|");
+    }
+
+    // Ejecuta el pipeline si hay más de un comando
+    if (cmd_count > 1) {
+        execute_pipeline(args, cmd_count);
+    }
+    else{
+        
+        token = strtok(input, " \n"); // saves tokens of input (separates with spaces)
+        int arg_count = 0;
+        int background = 0;
+
+        while (token != NULL)
+        {
+            if (strcmp(token, "&") == 0)
+            { // if in the token has & is background process
+                background = 1;
+                break;
+            }
+            // saves the token in args array
+            args[arg_count++] = token;
+            token = strtok(NULL, " \n"); // continue taken tokens from input string
         }
-        // saves the token in args array
-        args[arg_count++] = token;
-        token = strtok(NULL, " \n"); // continue taken tokens from input string
-    }
-    // finally we have in args array all of tokens (parts) of user input
-    // example if input was "delay 10 &"
-    // args = delay, 10, &
+        // finally we have in args array all of tokens (parts) of user input
+        // example if input was "delay 10 &"
+        // args = delay, 10, &
 
-    args[arg_count] = NULL;
+        args[arg_count] = NULL;
 
-    if (arg_count == 0)
-        return;
+        if (arg_count == 0)
+            return;
 
-    if (strcmp(args[0], "cd") == 0)
-    {
-        cd_command(args[1]);
-    }
-    else if (strcmp(args[0], "clr") == 0)
-    {
-        system("clear");
-    }
-    else if (strcmp(args[0], "echo") == 0)
-    {
-        echo_command(args[1]);
-    }
-    else if (strcmp(args[0], "quit") == 0)
-    {
-        quit_command();
-        exit(0);
-    }
-    else
-    {
-        execute_external_command(args, background);
+        if (strcmp(args[0], "cd") == 0)
+        {
+            cd_command(args[1]);
+        }
+        else if (strcmp(args[0], "clr") == 0)
+        {
+            system("clear");
+        }
+        else if (strcmp(args[0], "echo") == 0)
+        {
+            echo_command(args[1]);
+        }
+        else if (strcmp(args[0], "quit") == 0)
+        {
+            quit_command();
+            exit(0);
+        }
+        else
+        {
+            execute_external_command(args, background);
+        }
     }
 }
