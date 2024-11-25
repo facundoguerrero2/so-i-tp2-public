@@ -1,5 +1,5 @@
 #include "commands.h"
-
+#include "monitor.h"
 char* command = NULL;
 FILE* batch_file = NULL;
 FILE* input_file = NULL;
@@ -115,12 +115,24 @@ bool excecute_internal_command(char *args[]){
     {
         quit_command();
         exit(0);
-    }else{
+    }else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--stop") == 0)
+    {
+        stop_monitor();
+    }
+    else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--status") == 0)
+    {
+        status_monitor();
+    }
+    else if (strcmp(args[0], "monitor") == 0)
+    {
+        start_monitor();
+    }
+    else
+    {
         return 0;
     }
     return 1;
 }
-
 void execute_external_command(char* args[], int tokens_cant)
 {   
     int background = 0;
