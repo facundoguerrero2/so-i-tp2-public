@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
+#include <stdbool.h>
 /**
  * @brief Current command entered by the user.
  */
@@ -28,12 +28,17 @@ extern int job_id;
 extern pid_t foreground_pid;
 
 /**
- * @brief Selects and executes the entered command.
- *
- * @param input Command entered by the user.
+ * @brief Tokenizes a string based on a given separator.
+ * 
+ * This function takes an input string and a separator, and splits the input string
+ * into tokens based on the separator. The tokens are stored in the provided array.
+ * 
+ * @param input The input string to be tokenized.
+ * @param separator The characters used as delimiters for tokenization.
+ * @param args The array where the tokens will be stored.
+ * @return The number of tokens found in the input string.
  */
-void command_select(char* input);
-
+int tokenize(char *input, char* separator, char* args[]);
 /**
  * @brief Changes the current working directory.
  *
@@ -52,7 +57,17 @@ void echo_command(char* msj);
  * @brief Frees resources and exits the shell.
  */
 void quit_command(void);
-
+/**
+ * @brief Executes an internal command if it matches known commands.
+ * 
+ * This function checks if the given command matches any known internal commands
+ * (e.g., `cd`, `clr`, `echo`, `quit`). If it matches, the corresponding internal
+ * command function is executed.
+ * 
+ * @param args Array of command arguments.
+ * @return `true` if the command is an internal command and was executed, `false` otherwise.
+ */
+bool excecute_internal_command(char *args[]);
 /**
  * @brief Executes an external command.
  *
@@ -70,3 +85,13 @@ void execute_external_command(char* args[], int background);
  * @param n Number of commands in the pipeline.
  */
 void execute_pipeline(char *cmds[], int n) ;
+
+/**
+ * @brief Selects and executes the entered command.
+ *
+ * @param input Command entered by the user.
+ */
+void command_select(char* input);
+
+
+
