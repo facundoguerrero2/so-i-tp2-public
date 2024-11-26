@@ -105,4 +105,7 @@ void command_select(char* input);
  * @param tokens_cant Number of tokens in the `args` array.
  */
 void redirect(char* args[], int tokens_cant);
-
+/**
+ * @brief Sends config array to monitor
+ */
+void send_config();

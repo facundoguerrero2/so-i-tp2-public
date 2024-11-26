@@ -1,11 +1,13 @@
 #include "commands.h"
 #include "monitor.h"
+#include "fifos.h"
 char* command = NULL;
 FILE* batch_file = NULL;
 FILE* input_file = NULL;
 FILE* output_file = NULL;
 int job_id = 1;
 pid_t foreground_pid = -1;
+
 
 int tokenize(char *input, char* separator, char* args[]){
     
@@ -30,7 +32,7 @@ void cd_command(char* path)
         // if user put cd - in the terminal
     }
     else if (strcmp(path, "-") == 0)
-    { // REVISAR ESTE
+    { 
         path = getenv("OLDPWD");
     }
 
@@ -70,7 +72,7 @@ void echo_command(char* msj)
 
 void quit_command()
 {
-
+    stop_monitor();
     if (command != NULL)
     {
         free(command);
@@ -93,8 +95,34 @@ void quit_command()
     {
         fclose(output_file);
         output_file = NULL;
+        
         printf("Archivo cerrado.\n");
     }
+}
+
+void send_config(){
+    int fd_write_config;
+    int fd_read_config;
+    fd_write_config = open(FIFO_CONFIG, O_WRONLY | O_NONBLOCK);
+    
+    printf("Config to send: ");
+    for(int i=0; i<CONFIG_SIZE; i++){
+        printf("%d ",cfg[i]);
+    }
+    printf("\n");
+    
+    write(fd_write_config, cfg, sizeof(cfg));
+    close(fd_write_config);
+
+    fd_read_config = open(FIFO_CONFIG_ACK, O_RDONLY);
+    int cfg_ack[CONFIG_SIZE];
+    read(fd_read_config,cfg_ack,sizeof(cfg));
+
+    printf("Config acknowledge: ");
+    for(int i=0; i<CONFIG_SIZE; i++){
+        printf("%d ",cfg_ack[i]);
+    }
+    printf("\n");
 }
 
 bool excecute_internal_command(char *args[]){
@@ -122,6 +150,9 @@ bool excecute_internal_command(char *args[]){
     else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--status") == 0)
     {
         status_monitor();
+    }else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--sendcfg") == 0)
+    {
+        send_config();
     }
     else if (strcmp(args[0], "monitor") == 0)
     {
