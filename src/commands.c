@@ -150,13 +150,18 @@ bool excecute_internal_command(char *args[]){
     else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--status") == 0)
     {
         status_monitor();
-    }else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--sendcfg") == 0)
+    }else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--restart") == 0)
     {
+        stop_monitor();
+        start_monitor();
+        sleep(1); //sleep for monitor starts and wait cfg
         send_config();
     }
     else if (strcmp(args[0], "monitor") == 0)
     {
         start_monitor();
+        sleep(1); //sleep for monitor starts and wait cfg
+        send_config();
     }
     else
     {
