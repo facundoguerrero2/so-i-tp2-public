@@ -1,5 +1,4 @@
-#include <cjson/cJSON.h>
-
+#include "json_cfg.h"
 #include "commands.h"
 #include "signals_handling.h"
 #include "fifos.h"
@@ -33,7 +32,7 @@ void display_prompt()
 int main(int argc, char* argv[])
 {
     create_fifos();  
-
+    read_config_from_json();
     size_t len = 0;
     setup_signal_handlers();
     if (argc > 1)

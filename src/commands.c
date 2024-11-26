@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "monitor.h"
 #include "fifos.h"
+#include "json_cfg.h"
 char* command = NULL;
 FILE* batch_file = NULL;
 FILE* input_file = NULL;
@@ -101,9 +102,11 @@ void quit_command()
 }
 
 void send_config(){
+    read_config_from_json();
     int fd_write_config;
     int fd_read_config;
     fd_write_config = open(FIFO_CONFIG, O_WRONLY | O_NONBLOCK);
+    
     
     printf("Config to send: ");
     for(int i=0; i<CONFIG_SIZE; i++){
@@ -117,6 +120,7 @@ void send_config(){
     fd_read_config = open(FIFO_CONFIG_ACK, O_RDONLY);
     int cfg_ack[CONFIG_SIZE];
     read(fd_read_config,cfg_ack,sizeof(cfg));
+    close(fd_read_config);
 
     printf("Config acknowledge: ");
     for(int i=0; i<CONFIG_SIZE; i++){
@@ -156,6 +160,10 @@ bool excecute_internal_command(char *args[]){
         start_monitor();
         sleep(1); //sleep for monitor starts and wait cfg
         send_config();
+    }else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--changecfg") == 0)
+    {
+        update_config_from_input();
+        
     }
     else if (strcmp(args[0], "monitor") == 0)
     {

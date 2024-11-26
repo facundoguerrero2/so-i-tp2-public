@@ -21,6 +21,6 @@ set(CMAKE_C_FLAGS_DEBUG "-g3 -Wall -pedantic -Werror -Wextra -Wconversion")
 find_package(cJSON REQUIRED)
 find_package(unity REQUIRED)
 
-add_executable(${PROJECT_NAME} src/main.c src/commands.c src/signals_handling.c src/monitor.c src/fifos.c)
+add_executable(${PROJECT_NAME} src/main.c src/commands.c src/signals_handling.c src/monitor.c src/fifos.c src/json_cfg.c)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE cjson::cjson)
