@@ -32,11 +32,8 @@ void display_prompt()
 
 int main(int argc, char* argv[])
 {
-    create_fifos();
-    int cfg[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5};
-    cfg[1] = cfg[1];
-    
-    
+    create_fifos();  
+
     size_t len = 0;
     setup_signal_handlers();
     if (argc > 1)
