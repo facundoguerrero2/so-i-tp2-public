@@ -17,9 +17,7 @@ void start_monitor()
     if (pid == 0)
     {
         // Proceso hijo: ejecuta el monitor
-        execl("/home/fg/Documentos/Facultad/SO/Laboratorios/so-i-24-chp2-facundoguerrero2/build/"
-              "so-i-24-facundoguerrero2-public/METRICAS",
-              "MONITOR", NULL);
+        execl(PROJECT_PATH "/build/so-i-24-facundoguerrero2-public/METRICAS", "MONITOR", NULL);
         perror("Error al ejecutar el programa de monitoreo");
         exit(EXIT_FAILURE);
     }

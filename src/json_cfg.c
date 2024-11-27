@@ -1,9 +1,20 @@
 #include "json_cfg.h"
 
+const char* config_keys[CFG_COUNT] = {[CFG_UPDATE_CPU] = "update_cpu",
+                                      [CFG_UPDATE_MEMORY] = "update_memory",
+                                      [CFG_UPDATE_DISK_READ_TIME] = "update_disk_read_time",
+                                      [CFG_UPDATE_DISK_WRITE_TIME] = "update_disk_write_time",
+                                      [CFG_UPDATE_DISK_IO_TIME] = "update_disk_io_time",
+                                      [CFG_UPDATE_NET_RECEIVE_KBPS] = "update_net_receive_kbps",
+                                      [CFG_UPDATE_NET_SENT_KBPS] = "update_net_sent_kbps",
+                                      [CFG_UPDATE_NET_RECEIVED_PACKETS] = "update_net_received_packets",
+                                      [CFG_UPDATE_NET_SENT_PACKETS] = "update_net_sent_packets",
+                                      [CFG_UPDATE_PROCESSES] = "update_processes"};
+
 void read_config_from_json()
 {
     // Leer el archivo JSON
-    FILE* file = fopen("../config.json", "r");
+    FILE* file = fopen(PROJECT_PATH "/config.json", "r");
     if (!file)
     {
         perror("Error al abrir el archivo de configuración");
@@ -33,16 +44,18 @@ void read_config_from_json()
         return;
     }
 
-    cfg[0] = cJSON_GetObjectItemCaseSensitive(metrics, "update_cpu")->valueint;
-    cfg[1] = cJSON_GetObjectItemCaseSensitive(metrics, "update_memory")->valueint;
-    cfg[2] = cJSON_GetObjectItemCaseSensitive(metrics, "update_disk_read_time")->valueint;
-    cfg[3] = cJSON_GetObjectItemCaseSensitive(metrics, "update_disk_write_time")->valueint;
-    cfg[4] = cJSON_GetObjectItemCaseSensitive(metrics, "update_disk_io_time")->valueint;
-    cfg[5] = cJSON_GetObjectItemCaseSensitive(metrics, "update_net_receive_kbps")->valueint;
-    cfg[6] = cJSON_GetObjectItemCaseSensitive(metrics, "update_net_sent_kbps")->valueint;
-    cfg[7] = cJSON_GetObjectItemCaseSensitive(metrics, "update_net_received_packets")->valueint;
-    cfg[8] = cJSON_GetObjectItemCaseSensitive(metrics, "update_net_sent_packets")->valueint;
-    cfg[9] = cJSON_GetObjectItemCaseSensitive(metrics, "update_processes")->valueint;
+    for (int i = 0; i < CFG_COUNT; i++)
+    {
+        cJSON* item = cJSON_GetObjectItemCaseSensitive(metrics, config_keys[i]);
+        if (cJSON_IsNumber(item))
+        {
+            cfg[i] = item->valueint;
+        }
+        else
+        {
+            cfg[i] = 0; // Default value if the JSON key is missing or invalid
+        }
+    }
 
     // Leer "intervals"
     cJSON* intervals = cJSON_GetObjectItemCaseSensitive(json, "intervals");
@@ -118,7 +131,7 @@ void update_config_from_input()
     }
 
     // Escribir la cadena en el archivo
-    FILE* file = fopen("../config.json", "w");
+    FILE* file = fopen(PROJECT_PATH "/config.json", "w");
     if (!file)
     {
         perror("Error al abrir el archivo para escribir");
@@ -136,5 +149,5 @@ void update_config_from_input()
 
     getchar();
 
-    printf("Configuración actualizada exitosamente en %s\n", "../config.json");
+    printf("Configuración actualizada exitosamente en %s\n", "config.json");
 }

@@ -1,10 +1,10 @@
 #pragma once
+#include "fifos.h"
+#include "paths.h"
 #include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "fifos.h"
 /**
  * @brief max json buffer size
  */
@@ -18,3 +18,31 @@ void read_config_from_json();
  * @brief update json from user input in terminal
  */
 void update_config_from_input();
+
+/**
+ * @brief Indices for configuration settings in the cfg array.
+ *
+ * This enum defines the indices for various configuration settings in the cfg array.
+ */
+typedef enum
+{
+    CFG_UPDATE_CPU,
+    CFG_UPDATE_MEMORY,
+    CFG_UPDATE_DISK_READ_TIME,
+    CFG_UPDATE_DISK_WRITE_TIME,
+    CFG_UPDATE_DISK_IO_TIME,
+    CFG_UPDATE_NET_RECEIVE_KBPS,
+    CFG_UPDATE_NET_SENT_KBPS,
+    CFG_UPDATE_NET_RECEIVED_PACKETS,
+    CFG_UPDATE_NET_SENT_PACKETS,
+    CFG_UPDATE_PROCESSES,
+    CFG_COUNT // Always the last to define the size of the array
+} config_indices;
+
+/**
+ * @brief Array of configuration keys corresponding to the indices in config_indices.
+ *
+ * This array maps the indices defined in config_indices to their corresponding
+ * configuration keys as strings.
+ */
+extern const char* config_keys[CFG_COUNT];
