@@ -10,7 +10,7 @@ void signal_handler(int sig)
 }
 
 void setup_signal_handlers()
-{   
+{
     struct sigaction sa;
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);

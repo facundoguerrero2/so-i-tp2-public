@@ -1,12 +1,12 @@
 #pragma once
 
+#include <fcntl.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdbool.h>
 /**
  * @brief Ruta fifo configs
  */

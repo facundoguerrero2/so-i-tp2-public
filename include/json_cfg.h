@@ -1,8 +1,8 @@
 #pragma once
+#include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cjson/cJSON.h>
 
 #include "fifos.h"
 /**
@@ -10,7 +10,7 @@
  */
 #define MAX_BUFFER_SIZE 4096
 /**
- * @brief read config from json and storage it in int cfg array. 
+ * @brief read config from json and storage it in int cfg array.
  */
 void read_config_from_json();
 

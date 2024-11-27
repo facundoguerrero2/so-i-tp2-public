@@ -1,7 +1,7 @@
-#include "json_cfg.h"
 #include "commands.h"
-#include "signals_handling.h"
 #include "fifos.h"
+#include "json_cfg.h"
+#include "signals_handling.h"
 
 void display_prompt()
 {
@@ -25,13 +25,9 @@ void display_prompt()
     fflush(stdout);
 }
 
-
-
-
-
 int main(int argc, char* argv[])
 {
-    create_fifos();  
+    create_fifos();
     read_config_from_json();
     size_t len = 0;
     setup_signal_handlers();

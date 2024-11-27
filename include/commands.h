@@ -1,13 +1,13 @@
 #pragma once
+#include <fcntl.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdbool.h>
-#include <fcntl.h>
 
 /**
  * @brief Current command entered by the user.
@@ -31,16 +31,16 @@ extern pid_t foreground_pid;
 
 /**
  * @brief Tokenizes a string based on a given separator.
- * 
+ *
  * This function takes an input string and a separator, and splits the input string
  * into tokens based on the separator. The tokens are stored in the provided array.
- * 
+ *
  * @param input The input string to be tokenized.
  * @param separator The characters used as delimiters for tokenization.
  * @param args The array where the tokens will be stored.
  * @return The number of tokens found in the input string.
  */
-int tokenize(char *input, char* separator, char* args[]);
+int tokenize(char* input, char* separator, char* args[]);
 /**
  * @brief Changes the current working directory.
  *
@@ -61,15 +61,15 @@ void echo_command(char* msj);
 void quit_command(void);
 /**
  * @brief Executes an internal command if it matches known commands.
- * 
+ *
  * This function checks if the given command matches any known internal commands
  * (e.g., `cd`, `clr`, `echo`, `quit`). If it matches, the corresponding internal
  * command function is executed.
- * 
+ *
  * @param args Array of command arguments.
  * @return `true` if the command is an internal command and was executed, `false` otherwise.
  */
-bool excecute_internal_command(char *args[]);
+bool excecute_internal_command(char* args[]);
 /**
  * @brief Executes an external command.
  *
@@ -79,14 +79,14 @@ bool excecute_internal_command(char *args[]);
 void execute_external_command(char* args[], int background);
 /**
  * @brief Executes a pipeline of commands.
- * 
+ *
  * This function takes an array of commands and executes them in a pipeline,
  * where the output of each command is passed as input to the next command.
- * 
+ *
  * @param cmds Array of commands to be executed in the pipeline.
  * @param n Number of commands in the pipeline.
  */
-void execute_pipeline(char *cmds[], int n) ;
+void execute_pipeline(char* cmds[], int n);
 
 /**
  * @brief Selects and executes the entered command.
@@ -97,10 +97,10 @@ void command_select(char* input);
 
 /**
  * @brief Handles input and output redirection for a command.
- * 
+ *
  * This function checks the arguments for input (`<`) and output (`>`) redirection
  * operators and sets up the appropriate file descriptors for `stdin` and `stdout`.
- * 
+ *
  * @param args Array of command arguments.
  * @param tokens_cant Number of tokens in the `args` array.
  */
