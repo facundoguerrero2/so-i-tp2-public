@@ -20,6 +20,15 @@
  */
 #define CONFIG_SIZE 11
 /**
+ * @brief Default file permissions for FIFO files.
+ *
+ * This macro defines the default file permissions for FIFO files as 0666, which means:
+ * - Owner: read and write
+ * - Group: read and write
+ * - Others: read and write
+ */
+#define FIFO_FILE_PERMISSIONS 0666
+/**
  * @brief CFG array
  */
 extern int cfg[CONFIG_SIZE];

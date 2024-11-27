@@ -10,6 +10,26 @@
 #include <unistd.h>
 
 /**
+ * @brief Number of seconds for sleep interval.
+ */
+#define SEC 1
+
+/**
+ * @def ARG_BUFFER_SIZE
+ * @brief Buffer size for command arguments.
+ */
+#define ARG_BUFFER_SIZE 128
+
+/**
+ * @brief Default file permissions for created files.
+ *
+ * This macro defines the default file permissions as 0644, which means:
+ * - Owner: read and write
+ * - Group: read
+ * - Others: read
+ */
+#define FILE_PERMISSIONS 0644
+/**
  * @brief Current command entered by the user.
  */
 extern char* command;

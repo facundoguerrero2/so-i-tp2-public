@@ -3,6 +3,6 @@ int cfg[CONFIG_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}; // initialize with no 
 
 void create_fifos()
 {
-    mkfifo(FIFO_CONFIG, 0666);
-    mkfifo(FIFO_CONFIG_ACK, 0666);
+    mkfifo(FIFO_CONFIG, FIFO_FILE_PERMISSIONS);
+    mkfifo(FIFO_CONFIG_ACK, FIFO_FILE_PERMISSIONS);
 }

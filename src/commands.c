@@ -259,7 +259,7 @@ void execute_pipeline(char* cmds[], int n)
             }
             close(pipefd[0]);
 
-            char* args[128];
+            char* args[ARG_BUFFER_SIZE];
             tokenize(cmds[i], " \n", args);
 
             if (execvp(args[0], args) == -1)
@@ -281,7 +281,7 @@ void execute_pipeline(char* cmds[], int n)
 void command_select(char* input)
 {
     // Array para almacenar tokens
-    char* args[64];
+    char* args[ARG_BUFFER_SIZE];
     int tokens_cant = tokenize(input, "|", args); // dividimos en tokens separados por |
     // si hay mas de un token entonces hay dos comandos entonces ejecutamos pipeline
     if (tokens_cant > 1) // si da mayor a uno significa que hay pipes que hay mas de un comando
@@ -331,7 +331,7 @@ void redirect(char* args[], int tokens_cant)
         }
         else if (strcmp(args[i], ">") == 0 && i + 1 < tokens_cant)
         {
-            int out_fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            int out_fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, FILE_PERMISSIONS);
             if (out_fd == -1)
             {
                 perror("No se puede abrir el archivo de salida");
