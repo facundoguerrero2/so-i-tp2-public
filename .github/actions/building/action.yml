@@ -4,6 +4,11 @@ description: "Executes a compilation."
 runs:
   using: "composite"
   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
     - name: Set up Conan
       shell: bash
       run: |
@@ -22,5 +27,6 @@ runs:
 
         echo "Running command: cmake -DRUN_COVERAGE=1 .. && make -j2"
 
-        mkdir -p build && cd build
-        cmake -DRUN_COVERAGE=1 -DENABLE_CJSON_TEST=OFF .. && make -j2
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=./build/Debug/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DRUN_COVERAGE=1 -DENABLE_CJSON_TEST=OFF
+        make -j2
