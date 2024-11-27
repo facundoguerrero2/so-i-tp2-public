@@ -5,6 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up Conan
+      shell: bash
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-pip
