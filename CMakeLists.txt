@@ -27,5 +27,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE cjson::cjson)
 
 if(RUN_COVERAGE EQUAL 1)
     message("Run with coverage")
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()
