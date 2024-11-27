@@ -11,6 +11,7 @@ runs:
         sudo apt-get install -y python3-pip
         pip3 install conan
 
+        conan profile detect --force
         conan install ./ --output-folder=build --build=missing --settings=build_type=Debug
 
     - name: Compile
