@@ -1,6 +1,6 @@
 #pragma once
 #include "fifos.h"
-#include "paths.h"
+#include "paths_cfg.h"
 #include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,3 +46,9 @@ typedef enum
  * configuration keys as strings.
  */
 extern const char* config_keys[CFG_COUNT];
+
+/**
+ * @brief checks if config.json exists in cfg_file_path
+ * if not exists it will create one and initialize it
+ */
+void setup_json();

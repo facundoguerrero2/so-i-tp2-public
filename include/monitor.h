@@ -1,6 +1,6 @@
 #pragma once
 
-#include "paths.h"
+#include "paths_cfg.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "fifos.h"
 #include "json_cfg.h"
+#include "paths_cfg.h"
 #include "signals_handling.h"
 
 void display_prompt()
@@ -27,6 +28,8 @@ void display_prompt()
 
 int main(int argc, char* argv[])
 {
+    set_path();
+    setup_json();
     create_fifos();
     read_config_from_json();
     size_t len = 0;

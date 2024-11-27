@@ -13,8 +13,19 @@ const char* config_keys[CFG_COUNT] = {[CFG_UPDATE_CPU] = "update_cpu",
 
 void read_config_from_json()
 {
-    // Leer el archivo JSON
-    FILE* file = fopen(PROJECT_PATH "/config.json", "r");
+    // Obtener la variable de entorno BINARY_PATH
+    const char* binary_path = getenv("BINARY_PATH");
+    if (!binary_path)
+    {
+        fprintf(stderr, "Error: BINARY_PATH no está definido\n");
+        return;
+    }
+
+    // Construir la ruta completa al archivo config.json
+    char config_path[PATH_MAX];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", binary_path);
+
+    FILE* file = fopen(config_path, "r");
     if (!file)
     {
         perror("Error al abrir el archivo de configuración");
@@ -130,8 +141,19 @@ void update_config_from_input()
         return;
     }
 
-    // Escribir la cadena en el archivo
-    FILE* file = fopen(PROJECT_PATH "/config.json", "w");
+    // Obtener la variable de entorno BINARY_PATH
+    const char* binary_path = getenv("BINARY_PATH");
+    if (!binary_path)
+    {
+        fprintf(stderr, "Error: BINARY_PATH no está definido\n");
+        return;
+    }
+
+    // Construir la ruta completa al archivo config.json
+    char config_path[PATH_MAX];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", binary_path);
+
+    FILE* file = fopen(config_path, "w");
     if (!file)
     {
         perror("Error al abrir el archivo para escribir");
@@ -150,4 +172,93 @@ void update_config_from_input()
     getchar();
 
     printf("Configuración actualizada exitosamente en %s\n", "config.json");
+}
+
+void setup_json()
+{
+    // Obtener la variable de entorno BINARY_PATH
+    const char* binary_path = getenv("BINARY_PATH");
+    if (!binary_path)
+    {
+        fprintf(stderr, "Error: BINARY_PATH no está definido\n");
+        return;
+    }
+
+    // Construir la ruta completa al archivo config.json
+    char config_path[PATH_MAX];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", binary_path);
+    struct stat buffer;
+    if (stat(config_path, &buffer) != 0)
+    {
+        // El archivo no existe, crear e inicializar
+        FILE* file = fopen(config_path, "w");
+        if (file)
+        {
+            cJSON* root = cJSON_CreateObject();
+            if (!root)
+            {
+                fprintf(stderr, "Error al crear el objeto JSON\n");
+                return;
+            }
+
+            // Crear objetos para "intervals" y "metrics"
+            cJSON* intervals = cJSON_CreateObject();
+            cJSON* metrics = cJSON_CreateObject();
+            if (!intervals || !metrics)
+            {
+                fprintf(stderr, "Error al crear los objetos 'intervals' o 'metrics'\n");
+                cJSON_Delete(root);
+                return;
+            }
+
+            // Agregar los objetos al root
+            cJSON_AddItemToObject(root, "intervals", intervals);
+            cJSON_AddItemToObject(root, "metrics", metrics);
+
+            // Solicitar al usuario los valores y agregarlos al JSON
+            cJSON_AddNumberToObject(intervals, "sampling_interval", 1);
+
+            const char* metric_names[] = {"update_cpu",
+                                          "update_memory",
+                                          "update_disk_read_time",
+                                          "update_disk_write_time",
+                                          "update_disk_io_time",
+                                          "update_net_receive_kbps",
+                                          "update_net_sent_kbps",
+                                          "update_net_received_packets",
+                                          "update_net_sent_packets",
+                                          "update_processes"};
+
+            for (int i = 0; i < 10; i++)
+            {
+                cJSON_AddNumberToObject(metrics, metric_names[i], 1);
+            }
+
+            // Serializar el JSON a una cadena
+            char* json_string = cJSON_Print(root);
+            if (!json_string)
+            {
+                fprintf(stderr, "Error al serializar el JSON\n");
+                cJSON_Delete(root);
+                return;
+            }
+
+            fprintf(file, "%s", json_string);
+            fclose(file);
+
+            // Limpiar memoria
+            free(json_string);
+            cJSON_Delete(root);
+
+            printf("Archivo de configuración creado e inicializado en %s\n", config_path);
+        }
+        else
+        {
+            perror("Error al crear el archivo de configuración");
+        }
+    }
+    else
+    {
+        printf("Archivo de configuración existente en %s\n", config_path);
+    }
 }

@@ -1,4 +1,5 @@
 #include "monitor.h"
+#include "paths.h"
 pid_t monitor_pid = -1;
 void start_monitor()
 {
@@ -17,7 +18,18 @@ void start_monitor()
     if (pid == 0)
     {
         // Proceso hijo: ejecuta el monitor
-        execl(PROJECT_PATH "/build/so-i-24-facundoguerrero2-public/METRICAS", "MONITOR", NULL);
+        // Obtener la variable de entorno BINARY_PATH
+        const char* binary_path = getenv("BINARY_PATH");
+        if (!binary_path)
+        {
+            fprintf(stderr, "Error: BINARY_PATH no está definido\n");
+            return;
+        }
+
+        // Construir la ruta completa al archivo config.json
+        char monitor_path[PATH_MAX];
+        snprintf(monitor_path, sizeof(monitor_path), "%s/so-i-24-facundoguerrero2-public/METRICAS", binary_path);
+        execl(monitor_path, "MONITOR", NULL);
         perror("Error al ejecutar el programa de monitoreo");
         exit(EXIT_FAILURE);
     }
