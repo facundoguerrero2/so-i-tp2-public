@@ -165,7 +165,7 @@ bool excecute_internal_command(char *args[]){
         update_config_from_input();
         
     }
-    else if (strcmp(args[0], "monitor") == 0)
+    else if (strcmp(args[0], "monitor") == 0 && args[1] != NULL && strcmp(args[1], "--start") == 0)
     {
         start_monitor();
         sleep(1); //sleep for monitor starts and wait cfg

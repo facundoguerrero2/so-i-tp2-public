@@ -12,7 +12,7 @@ project(
 include(CTest)
 # Include headers
 include_directories(include)
-
+add_subdirectory(so-i-24-facundoguerrero2)
 # Flags for compiling
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_FLAGS_DEBUG "-g3 -Wall -pedantic -Werror -Wextra -Wconversion")
