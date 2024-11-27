@@ -9,6 +9,26 @@ runs:
       with:
         submodules: true
 
+    - name: Set up prom
+      shell: bash
+      run: |
+        sudo apt-get install -y libmicrohttpd-dev
+
+        git clone https://github.com/digitalocean/prometheus-client-c.git
+        cd prometheus-client-c
+        rm -rf promhttp
+          
+        cd prom
+        mkdir build
+        cd build
+        cmake ..
+        make
+        sudo make install  # Instalar prom en el sistema para que se pueda linkear
+
+        cd ..
+        cd ..
+        cd ..
+
     - name: Set up Conan
       shell: bash
       run: |
