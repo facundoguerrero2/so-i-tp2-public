@@ -1,10 +1,13 @@
 #pragma once
+#include <cjson/cJSON.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -125,7 +128,63 @@ void command_select(char* input);
  * @param tokens_cant Number of tokens in the `args` array.
  */
 void redirect(char* args[], int tokens_cant);
+
 /**
  * @brief Sends config array to monitor
  */
 void send_config();
+
+/**
+ * @brief Checks if a filename has a specific suffix.
+ *
+ * This function checks if the given filename ends with the specified suffix.
+ *
+ * @param name The filename to check.
+ * @param suf The suffix to look for.
+ * @return true if the filename ends with the suffix, false otherwise.
+ */
+int has_suffix(const char* name, const char* suf);
+
+/**
+ * @brief Recursively scans a directory for JSON files and prints their content.
+ *
+ * This function traverses the specified directory and its subdirectories,
+ * looking for files with a `.json` suffix. For each JSON file found, it reads
+ * and prints its content in a flattened key-value format.
+ *
+ * @param dirpath The path of the directory to scan.
+ */
+void scan_json_recursive(const char* dirpath);
+
+/**
+ * @brief Flattens a cJSON object and prints its key-value pairs.
+ *
+ * This function recursively traverses a cJSON object or array, flattening its structure
+ * and printing each key-value pair in a dot-separated format. For arrays, indices are used
+ * to represent the position of elements.
+ *
+ * @param node The cJSON object or array to flatten.
+ * @param prefix The prefix to use for keys (can be NULL).
+ */
+void json_flatten_kv(cJSON* node, const char* prefix);
+
+/**
+ * @brief Prints a key-value pair from a cJSON node.
+ *
+ * This function prints the key and value of a cJSON node in a formatted manner.
+ * It handles different types of cJSON nodes, including strings, numbers, booleans, and nulls.
+ *
+ * @param key The key associated with the cJSON node.
+ * @param v The cJSON node containing the value to print.
+ */
+void print_kv_line(const char* key, cJSON* v);
+
+/**
+ * @brief Prints the content of a file.
+ *
+ * This function reads and prints the content of the specified file to the standard output.
+ * If the file cannot be opened or read, an error message is printed.
+ *
+ * @param path The path to the file to be read.
+ */
+void print_file_content(const char* path);

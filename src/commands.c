@@ -131,6 +131,156 @@ void send_config()
     printf("\n");
 }
 
+int has_suffix(const char* name, const char* suf)
+{
+    size_t n = strlen(name), m = strlen(suf);
+    return n >= m && strcmp(name + n - m, suf) == 0;
+}
+
+void print_kv_line(const char* key, cJSON* v)
+{
+    if (cJSON_IsString(v) && v->valuestring)
+    {
+        printf("%s=%s\n", key, v->valuestring);
+    }
+    else if (cJSON_IsNumber(v))
+    {
+        printf("%s=%g\n", key, v->valuedouble);
+    }
+    else if (cJSON_IsBool(v))
+    {
+        printf("%s=%s\n", key, cJSON_IsTrue(v) ? "true" : "false");
+    }
+    else if (cJSON_IsNull(v))
+    {
+        printf("%s=null\n", key);
+    }
+}
+
+void json_flatten_kv(cJSON* node, const char* prefix)
+{
+    if (cJSON_IsObject(node))
+    {
+        for (cJSON* it = node->child; it; it = it->next)
+        {
+            char key[PATH_MAX];
+            const char* base = (prefix && prefix[0]) ? prefix : "";
+            if (base[0])
+                snprintf(key, sizeof key, "%s.%s", base, it->string);
+            else
+                snprintf(key, sizeof key, "%s", it->string);
+            if (cJSON_IsObject(it) || cJSON_IsArray(it))
+                json_flatten_kv(it, key);
+            else
+                print_kv_line(key, it);
+        }
+    }
+    else if (cJSON_IsArray(node))
+    {
+        int i = 0;
+        for (cJSON* it = node->child; it; it = it->next, ++i)
+        {
+            char key[PATH_MAX];
+            const char* base = (prefix && prefix[0]) ? prefix : "root";
+            snprintf(key, sizeof key, "%s[%d]", base, i);
+            if (cJSON_IsObject(it) || cJSON_IsArray(it))
+                json_flatten_kv(it, key);
+            else
+                print_kv_line(key, it);
+        }
+    }
+    else
+    {
+        const char* base = (prefix && prefix[0]) ? prefix : "root";
+        print_kv_line(base, node);
+    }
+}
+
+void print_file_content(const char* path)
+{
+    printf("Contenido de %s:\n", path);
+    FILE* f = fopen(path, "r");
+    if (!f)
+    {
+        perror("scanconf fopen");
+        printf("\n");
+        return;
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0)
+    {
+        fclose(f);
+        printf("\n");
+        return;
+    }
+    long sz = ftell(f);
+    if (sz < 0)
+    {
+        fclose(f);
+        printf("\n");
+        return;
+    }
+    rewind(f);
+
+    char* buf = (char*)malloc((size_t)sz + 1);
+    if (!buf)
+    {
+        fclose(f);
+        printf("\n");
+        return;
+    }
+    size_t n = fread(buf, 1, (size_t)sz, f);
+    buf[n] = '\0';
+    fclose(f);
+
+    cJSON* json = cJSON_Parse(buf);
+    free(buf);
+    if (!json)
+    {
+        fprintf(stderr, "scanconf: JSON inválido\n\n");
+        return;
+    }
+
+    json_flatten_kv(json, NULL);
+    cJSON_Delete(json);
+    printf("\n");
+}
+
+void scan_json_recursive(const char* dirpath)
+{
+    DIR* d = opendir(dirpath);
+    if (!d)
+    {
+        perror("scanconf opendir");
+        return;
+    }
+    struct dirent* ent;
+    while ((ent = readdir(d)) != NULL)
+    {
+        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+            continue;
+
+        char path[PATH_MAX];
+        if (snprintf(path, sizeof path, "%s/%s", dirpath, ent->d_name) >= (int)sizeof path)
+            continue;
+
+        if (ent->d_type == DT_DIR)
+        {
+            scan_json_recursive(path);
+        }
+        else
+        {
+            struct stat st;
+            if (stat(path, &st) == 0 && S_ISREG(st.st_mode) && has_suffix(ent->d_name, ".json"))
+            {
+                printf("Archivo de configuración encontrado: %s\n", path);
+                print_file_content(path);
+            }
+        }
+    }
+    closedir(d);
+}
+
 bool excecute_internal_command(char* args[])
 {
 
@@ -175,6 +325,11 @@ bool excecute_internal_command(char* args[])
         start_monitor();
         sleep(SEC); // sleep for monitor starts and wait cfg
         send_config();
+    }
+    else if (strcmp(args[0], "scanconf") == 0)
+    {
+        const char* root = (args[1] && args[1][0]) ? args[1] : ".";
+        scan_json_recursive(root);
     }
     else
     {
