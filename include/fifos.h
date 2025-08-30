@@ -15,6 +15,17 @@
  * @brief ruta fifo config ack
  */
 #define FIFO_CONFIG_ACK "/tmp/fifo_config_ack"
+
+/**
+ * @brief Ruta valores fifo
+ */
+#define FIFO_MEMORY_VALUES "/tmp/fifo_memory_values"
+
+/**
+ * @brief ruta  fifo_memory_values ack
+ */
+#define FIFO_MEMORY_VALUES_ACK "/tmp/fifo_memory_values_ack"
+
 /**
  * @brief CFG ARRAY SIZE
  */
