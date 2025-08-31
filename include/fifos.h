@@ -29,7 +29,7 @@
 /**
  * @brief CFG ARRAY SIZE
  */
-#define CONFIG_SIZE 11
+#define CONFIG_SIZE 13
 /**
  * @brief Default file permissions for FIFO files.
  *

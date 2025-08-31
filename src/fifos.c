@@ -1,5 +1,5 @@
 #include "fifos.h"
-int cfg[CONFIG_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}; // initialize with no metrics and 1 second sleep
+int cfg[CONFIG_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}; // initialize with no metrics and 1 second sleep
 
 void create_fifos()
 {

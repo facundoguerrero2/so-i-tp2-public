@@ -36,6 +36,8 @@ typedef enum
     CFG_UPDATE_NET_RECEIVED_PACKETS,
     CFG_UPDATE_NET_SENT_PACKETS,
     CFG_UPDATE_PROCESSES,
+    CFG_UPDATE_FRAGMENTATION,
+    CFG_UPDATE_FIT_COUNTERS,
     CFG_COUNT // Always the last to define the size of the array
 } config_indices;
 

@@ -9,7 +9,9 @@ const char* config_keys[CFG_COUNT] = {[CFG_UPDATE_CPU] = "update_cpu",
                                       [CFG_UPDATE_NET_SENT_KBPS] = "update_net_sent_kbps",
                                       [CFG_UPDATE_NET_RECEIVED_PACKETS] = "update_net_received_packets",
                                       [CFG_UPDATE_NET_SENT_PACKETS] = "update_net_sent_packets",
-                                      [CFG_UPDATE_PROCESSES] = "update_processes"};
+                                      [CFG_UPDATE_PROCESSES] = "update_processes",
+                                      [CFG_UPDATE_FRAGMENTATION] = "update_fragmentation",
+                                      [CFG_UPDATE_FIT_COUNTERS] = "update_fit_counters"};
 
 void read_config_from_json()
 {
@@ -77,7 +79,7 @@ void read_config_from_json()
         return;
     }
 
-    cfg[10] = cJSON_GetObjectItemCaseSensitive(intervals, "sampling_interval")->valueint;
+    cfg[CONFIG_SIZE-1] = cJSON_GetObjectItemCaseSensitive(intervals, "sampling_interval")->valueint;
 
     // Limpiar el objeto JSON
     cJSON_Delete(json);
@@ -113,7 +115,7 @@ void update_config_from_input()
     scanf("%d", &sampling_interval);
     cJSON_AddNumberToObject(intervals, "sampling_interval", sampling_interval);
 
-    int values[10];
+    int values[CFG_COUNT];
     const char* metric_names[] = {"update_cpu",
                                   "update_memory",
                                   "update_disk_read_time",
@@ -123,9 +125,12 @@ void update_config_from_input()
                                   "update_net_sent_kbps",
                                   "update_net_received_packets",
                                   "update_net_sent_packets",
-                                  "update_processes"};
+                                  "update_processes",
+                                  "update_fragmentation",
+                                  "update_fit_counters"
+                                 };
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < CFG_COUNT; i++)
     {
         printf("Enable %s metric (0 o 1): ", metric_names[i]);
         scanf("%d", &values[i]);
@@ -227,9 +232,12 @@ void setup_json()
                                           "update_net_sent_kbps",
                                           "update_net_received_packets",
                                           "update_net_sent_packets",
-                                          "update_processes"};
+                                          "update_processes",
+                                          "update_fragmentation",
+                                          "update_fit_counters"
+                                        };
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < CFG_COUNT; i++)
             {
                 cJSON_AddNumberToObject(metrics, metric_names[i], 1);
             }
