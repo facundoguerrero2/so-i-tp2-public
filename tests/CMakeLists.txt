@@ -1,6 +1,6 @@
 # Create project
 project(
-    "TEST"
+    "TEST_MemProject"
     VERSION 1.0.0
     LANGUAGES C
 )
